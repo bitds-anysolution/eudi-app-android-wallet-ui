@@ -25,9 +25,14 @@ import eu.europa.ec.eudi.wallet.issue.openid4vci.OpenId4VciManager
 import eu.europa.ec.eudi.wallet.issue.openid4vci.dpop.DPopConfig
 import eu.europa.ec.eudi.wallet.transfer.openId4vp.ClientIdScheme
 import eu.europa.ec.eudi.wallet.transfer.openId4vp.Format
+import eu.europa.ec.eudi.wallet.transfer.openId4vp.PreregisteredVerifier
 import eu.europa.ec.resourceslogic.R
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
+const val OPENID4VP_VERIFIER_API_URI = "https://testeidas.loguea.es/"
+const val OPENID4VP_VERIFIER_LEGAL_NAME = "Test eIDAS"
+const val OPENID4VP_VERIFIER_CLIENT_ID = "testeidas.loguea.es"
 
 internal class WalletCoreConfigImpl(
     private val context: Context
@@ -48,7 +53,16 @@ internal class WalletCoreConfigImpl(
                         withClientIdSchemes(
                             listOf(
                                 ClientIdScheme.X509SanDns,
-                                ClientIdScheme.X509Hash
+                                ClientIdScheme.X509Hash,
+                                ClientIdScheme.Preregistered(
+                                    listOf(
+                                        PreregisteredVerifier(
+                                            clientId = OPENID4VP_VERIFIER_CLIENT_ID,
+                                            verifierApi = OPENID4VP_VERIFIER_API_URI,
+                                            legalName = OPENID4VP_VERIFIER_LEGAL_NAME
+                                        )
+                                    )
+                                ),
                             )
                         )
                         withSchemes(
@@ -78,7 +92,8 @@ internal class WalletCoreConfigImpl(
                         R.raw.pidissuerca02_pt,
                         R.raw.pidissuerca02_ut,
                         R.raw.dc4eu,
-                        R.raw.r45_staging
+                        R.raw.r45_staging,
+                        R.raw.testeidas_ca
                     )
                 }
             }
@@ -89,7 +104,7 @@ internal class WalletCoreConfigImpl(
         get() = listOf(
             VciConfig(
                 config = OpenId4VciManager.Config.Builder()
-                    .withIssuerUrl(issuerUrl = "https://ec.dev.issuer.eudiw.dev")
+                    .withIssuerUrl(issuerUrl = "https://issue.loguea.es")
                     .withClientAuthenticationType(OpenId4VciManager.ClientAuthenticationType.AttestationBased)
                     .withAuthFlowRedirectionURI(BuildConfig.ISSUE_AUTHORIZATION_DEEPLINK)
                     .withParUsage(OpenId4VciManager.Config.ParUsage.IF_SUPPORTED)
@@ -99,7 +114,7 @@ internal class WalletCoreConfigImpl(
             ),
             VciConfig(
                 config = OpenId4VciManager.Config.Builder()
-                    .withIssuerUrl(issuerUrl = "https://dev.issuer-backend.eudiw.dev")
+                    .withIssuerUrl(issuerUrl = "https://issue.loguea.es/api")
                     .withClientAuthenticationType(OpenId4VciManager.ClientAuthenticationType.AttestationBased)
                     .withAuthFlowRedirectionURI(BuildConfig.ISSUE_AUTHORIZATION_DEEPLINK)
                     .withParUsage(OpenId4VciManager.Config.ParUsage.IF_SUPPORTED)
